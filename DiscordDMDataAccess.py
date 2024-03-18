@@ -1,0 +1,189 @@
+import json
+import requests
+
+dataFile = ""
+sourceID = ""
+sourceurl = ""
+headers = {"Authorization" : ""}
+links = []
+targets = []
+groups = []
+artContent = []
+
+def initialize(file):
+    global dataFile
+    global sourceID
+    global sourceurl
+    global headers
+    global links
+    global targets
+
+    with open(dataFile, 'r') as f:
+        data = json.load(f)
+
+    dataFile = file
+    sourceID = data["source"]
+    auth = data["Authorization"]
+    sourceurl = f"https://discord.com/api/v9/channels/{sourceID}/messages"
+    headers = {"Authorization" : auth}
+    for link in data["linkTypes"]:
+        links.append(link)
+    for target in data["targets"]:
+        targets.append(target)
+    for group in data["groups"]:
+        groups.append(group)
+
+def searchHistory(channelurl):
+    global artContent
+
+    r = requests.get(channelurl, headers=headers)
+    jsonn = json.loads(r.text)
+
+    for entry in jsonn:
+        if entry["content"].startswith(tuple(links)):
+            artContent.append(entry["content"])
+        else:
+            break
+
+def getSourceID():
+    global sourceID
+    return sourceID
+
+def getSourceUrl():
+    global sourceurl
+    return sourceurl
+
+def setSource(newID):
+    global dataFile
+    global sourceID
+    global sourceurl
+
+    with open(dataFile, 'r') as f:
+        data = json.load(f)
+    
+    data["source"] = newID
+
+    with open(dataFile, 'w') as f:
+        json.dump(data, f)
+    
+    sourceID = newID
+    sourceurl = f"https://discord.com/api/v9/channels/{sourceID}/messages"
+
+def getHeader():
+    global headers
+    return headers
+
+def setHeaders(auth):
+    global headers
+
+    with open(dataFile, 'r') as f:
+        data = json.load(f)
+    
+    data["Authorization"] = auth
+
+    with open(dataFile, 'w') as f:
+        json.dump(data, f)
+    
+    headers = {"Authorization" : auth}
+
+def getLinks():
+    global links
+    return links
+
+def addLink(newLink):
+    global links
+
+    with open(dataFile, 'r') as f:
+        data = json.load(f)
+    
+    data["linkTypes"].append(newLink)
+
+    with open(dataFile, 'w') as f:
+        json.dump(data, f)
+    
+    links.append(newLink)
+
+def removeLink(remLink):
+    global links
+
+    with open(dataFile, 'r') as f:
+        data = json.load(f)
+    
+    data["linkTypes"].remove(remLink)
+
+    with open(dataFile, 'w') as f:
+        json.dump(data, f)
+
+    links.remove(remLink)
+
+def getTargets():
+    global targets
+    return targets
+
+def addTarget(newTarget):
+    global targets
+
+    with open(dataFile, 'r') as f:
+        data = json.load(f)
+    
+    data["targets"].append(newTarget)
+
+    with open(dataFile, 'w') as f:
+        json.dump(data, f)
+
+    targets.append(newTarget)
+
+def removeTarget(remTarget):
+    global targets
+
+    with open(dataFile, 'r') as f:
+        data = json.load(f)
+    
+    data["targets"].remove(remTarget)
+
+    with open(dataFile, 'w') as f:
+        json.dump(data, f)
+
+    targets.remove(remTarget)
+
+def getGroups():
+    global groups
+    return groups
+
+def addGroup(newGroup):
+    global groups
+
+    with open(dataFile, 'r') as f:
+        data = json.load(f)
+    
+    data["groups"].append(newGroup)
+
+    with open(dataFile, 'w') as f:
+        json.dump(data, f)
+
+    targets.append(newGroup)
+
+def removeTarget(remTarget):
+    global targets
+
+    with open(dataFile, 'r') as f:
+        data = json.load(f)
+    
+    data["targets"].remove(remTarget)
+
+    with open(dataFile, 'w') as f:
+        json.dump(data, f)
+
+    targets.remove(remTarget)
+
+def getContent():
+    global artContent
+    return artContent
+
+def addContent(newContent):
+    global artContent
+    artContent.append(newContent)
+
+def removeContent(remContent):
+    global artContent
+    artContent.remove(remContent)
