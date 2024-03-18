@@ -1,0 +1,251 @@
+{
+    "source": "1218699021363970090",
+    "Authorization": "",
+    "linkTypes": [
+        "https://x.com",
+        "https://twitter.com",
+        "https://vxtwitter.com",
+        "https://www.pixiv.net",
+        "https://www.phixiv.net"
+    ],
+    "targets": [
+        {
+            "name": "paps420",
+            "id": "503091519603998720"
+        },
+        {
+            "name": "mastaachef",
+            "id": "675556706859614208"
+        },
+        {
+            "name": "starlyfe",
+            "id": "855250141174562816"
+        },
+        {
+            "name": "benigoi",
+            "id": "515000972347441153"
+        },
+        {
+            "name": "nakayamafesta",
+            "id": "996656650133983354"
+        },
+        {
+            "name": "agitsune",
+            "id": "663271793217372161"
+        },
+        {
+            "name": "pirilika",
+            "id": "1170123672271466648"
+        },
+        {
+            "name": "qwerty3yuiop",
+            "id": "616431921316233236"
+        },
+        {
+            "name": "serversfw",
+            "id": "1218632563791499264"
+        },
+        {
+            "name": "servernsfw",
+            "id": "1218816358934904893"
+        }
+    ],
+    "groups": [
+        {
+            "genshinmale": [
+                {
+                    "name": "paps420",
+                    "id": "503091519603998720"
+                },
+                {
+                    "name": "mastaachef",
+                    "id": "675556706859614208"
+                },
+                {
+                    "name": "benigoi",
+                    "id": "515000972347441153"
+                },
+                {
+                    "name": "nakayamafesta",
+                    "id": "996656650133983354"
+                },
+                {
+                    "name": "qwerty3yuiop",
+                    "id": "616431921316233236"
+                },
+                {
+                    "name": "serversfw",
+                    "id": "1218632563791499264"
+                }
+            ]
+        },
+        {
+            "genshinfemale": [
+                {
+                    "name": "paps420",
+                    "id": "503091519603998720"
+                },
+                {
+                    "name": "mastaachef",
+                    "id": "675556706859614208"
+                },
+                {
+                    "name": "starlyfe",
+                    "id": "855250141174562816"
+                },
+                {
+                    "name": "benigoi",
+                    "id": "515000972347441153"
+                },
+                {
+                    "name": "nakayamafesta",
+                    "id": "996656650133983354"
+                },
+                {
+                    "name": "agitsune",
+                    "id": "663271793217372161"
+                },
+                {
+                    "name": "pirilika",
+                    "id": "1170123672271466648"
+                },
+                {
+                    "name": "qwerty3yuiop",
+                    "id": "616431921316233236"
+                },
+                {
+                    "name": "serversfw",
+                    "id": "1218632563791499264"
+                }
+            ]
+        },
+        {
+            "genshinhorny": [
+                {
+                    "name": "paps420",
+                    "id": "503091519603998720"
+                },
+                {
+                    "name": "starlyfe",
+                    "id": "855250141174562816"
+                },
+                {
+                    "name": "nakayamafesta",
+                    "id": "996656650133983354"
+                },
+                {
+                    "name": "agitsune",
+                    "id": "663271793217372161"
+                },
+                {
+                    "name": "pirilika",
+                    "id": "1170123672271466648"
+                },
+                {
+                    "name": "qwerty3yuiop",
+                    "id": "616431921316233236"
+                },
+                {
+                    "name": "servernsfw",
+                    "id": "1218816358934904893"
+                }
+            ]
+        },
+        {
+            "arknights": [
+                {
+                    "name": "paps420",
+                    "id": "503091519603998720"
+                },
+                {
+                    "name": "nakayamafesta",
+                    "id": "996656650133983354"
+                },
+                {
+                    "name": "qwerty3yuiop",
+                    "id": "616431921316233236"
+                }
+            ]
+        },
+        {
+            "starrail": [
+                {
+                    "name": "benigoi",
+                    "id": "515000972347441153"
+                },
+                {
+                    "name": "nakayamafesta",
+                    "id": "996656650133983354"
+                },
+                {
+                    "name": "agitsune",
+                    "id": "663271793217372161"
+                },
+                {
+                    "name": "pirilika",
+                    "id": "1170123672271466648"
+                },
+                {
+                    "name": "qwerty3yuiop",
+                    "id": "616431921316233236"
+                }
+            ]
+        },
+        {
+            "originalchar": [
+                {
+                    "name": "paps420",
+                    "id": "503091519603998720"
+                },
+                {
+                    "name": "starlyfe",
+                    "id": "855250141174562816"
+                },
+                {
+                    "name": "benigoi",
+                    "id": "515000972347441153"
+                },
+                {
+                    "name": "nakayamafesta",
+                    "id": "996656650133983354"
+                },
+                {
+                    "name": "pirilika",
+                    "id": "1170123672271466648"
+                },
+                {
+                    "name": "qwerty3yuiop",
+                    "id": "616431921316233236"
+                }
+            ]
+        },
+        {
+            "other": [
+                {
+                    "name": "paps420",
+                    "id": "503091519603998720"
+                },
+                {
+                    "name": "mastaachef",
+                    "id": "675556706859614208"
+                },
+                {
+                    "name": "benigoi",
+                    "id": "515000972347441153"
+                },
+                {
+                    "name": "nakayamafesta",
+                    "id": "996656650133983354"
+                },
+                {
+                    "name": "agitsune",
+                    "id": "663271793217372161"
+                },
+                {
+                    "name": "qwerty3yuiop",
+                    "id": "616431921316233236"
+                }
+            ]
+        }
+    ]
+}
