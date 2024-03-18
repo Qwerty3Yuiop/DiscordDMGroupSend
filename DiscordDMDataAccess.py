@@ -18,7 +18,7 @@ def initialize(file):
     global links
     global targets
 
-    with open(dataFile, 'r') as f:
+    with open(file, 'r') as f:
         data = json.load(f)
 
     dataFile = file
@@ -62,12 +62,11 @@ def setSource(newID):
         data = json.load(f)
     
     data["source"] = newID
+    sourceID = newID
+    sourceurl = f"https://discord.com/api/v9/channels/{sourceID}/messages"
 
     with open(dataFile, 'w') as f:
         json.dump(data, f)
-    
-    sourceID = newID
-    sourceurl = f"https://discord.com/api/v9/channels/{sourceID}/messages"
 
 def getHeader():
     global headers
@@ -80,11 +79,10 @@ def setHeaders(auth):
         data = json.load(f)
     
     data["Authorization"] = auth
+    headers = {"Authorization" : auth}
 
     with open(dataFile, 'w') as f:
         json.dump(data, f)
-    
-    headers = {"Authorization" : auth}
 
 def getLinks():
     global links
@@ -97,11 +95,10 @@ def addLink(newLink):
         data = json.load(f)
     
     data["linkTypes"].append(newLink)
+    links.append(newLink)
 
     with open(dataFile, 'w') as f:
         json.dump(data, f)
-    
-    links.append(newLink)
 
 def removeLink(remLink):
     global links
@@ -110,11 +107,10 @@ def removeLink(remLink):
         data = json.load(f)
     
     data["linkTypes"].remove(remLink)
+    links.remove(remLink)
 
     with open(dataFile, 'w') as f:
-        json.dump(data, f)
-
-    links.remove(remLink)
+        json.dump(data, f) 
 
 def getTargets():
     global targets
@@ -127,11 +123,10 @@ def addTarget(newTarget):
         data = json.load(f)
     
     data["targets"].append(newTarget)
+    targets.append(newTarget)
 
     with open(dataFile, 'w') as f:
         json.dump(data, f)
-
-    targets.append(newTarget)
 
 def removeTarget(remTarget):
     global targets
@@ -140,11 +135,10 @@ def removeTarget(remTarget):
         data = json.load(f)
     
     data["targets"].remove(remTarget)
+    targets.remove(remTarget)
 
     with open(dataFile, 'w') as f:
         json.dump(data, f)
-
-    targets.remove(remTarget)
 
 def getGroups():
     global groups
@@ -157,24 +151,52 @@ def addGroup(newGroup):
         data = json.load(f)
     
     data["groups"].append(newGroup)
+    groups.append(newGroup)
 
     with open(dataFile, 'w') as f:
         json.dump(data, f)
 
-    targets.append(newGroup)
-
-def removeTarget(remTarget):
-    global targets
+def addGroupMember(group, newMember):
+    global groups
 
     with open(dataFile, 'r') as f:
         data = json.load(f)
     
-    data["targets"].remove(remTarget)
+    for entry in data["groups"]:
+        if group in entry:
+            entry[group].append(newMember)
+            groups[group].append(newMember)
+            break
 
     with open(dataFile, 'w') as f:
         json.dump(data, f)
 
-    targets.remove(remTarget)
+def removeGroup(remMember):
+    global groups
+
+    with open(dataFile, 'r') as f:
+        data = json.load(f)
+    
+    data["groups"].remove(remMember)
+    groups.remove(remMember)
+
+    with open(dataFile, 'w') as f:
+        json.dump(data, f)
+
+def removeGroupMember(group, remMember):
+    global groups
+
+    with open(dataFile, 'r') as f:
+        data = json.load(f)
+    
+    for entry in data["groups"]:
+        if group in entry:
+            entry[group].remove(remMember)
+            groups[group].remove(remMember)
+            break
+
+    with open(dataFile, 'w') as f:
+        json.dump(data, f)
 
 def getContent():
     global artContent
