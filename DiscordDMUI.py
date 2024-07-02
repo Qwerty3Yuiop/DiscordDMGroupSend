@@ -1,6 +1,7 @@
 # DiscordDMUI.py is the user interface for the DiscordDM module
-# author: David Zhou
-# version: 2.0
+# by David Zhou
+# version 2.1
+
 import os
 from tkinter import *
 import webbrowser

@@ -1,8 +1,10 @@
-import requests
-from time import sleep
 # Discord message sender
 # by David Zhou
 # version 1.0
+
+import requests
+from time import sleep
+
 
 
 class Messenger:
