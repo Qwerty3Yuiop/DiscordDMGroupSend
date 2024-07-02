@@ -1,5 +1,6 @@
 import json
 import requests
+import re
 
 dataFile = ""
 sourceID = ""
@@ -7,7 +8,7 @@ sourceurl = ""
 headers = {"Authorization" : ""}
 links = []
 targets = []
-groups = []
+groups = {}
 artContent = []
 
 def initialize(file):
@@ -17,6 +18,17 @@ def initialize(file):
     global headers
     global links
     global targets
+    global groups
+    global artContent
+
+    dataFile = ""
+    sourceID = ""
+    sourceurl = ""
+    headers = {"Authorization" : ""}
+    links = []
+    targets = []
+    groups = {}
+    artContent = []
 
     with open(file, 'r') as f:
         data = json.load(f)
@@ -30,20 +42,25 @@ def initialize(file):
         links.append(link)
     for target in data["targets"]:
         targets.append(target)
-    for group in data["groups"]:
-        groups.append(group)
+    groups = data["groups"]
+    searchHistory(sourceurl)
 
 def searchHistory(channelurl):
     global artContent
 
     r = requests.get(channelurl, headers=headers)
     jsonn = json.loads(r.text)
-
-    for entry in jsonn:
-        if entry["content"].startswith(tuple(links)):
-            artContent.append(entry["content"])
-        else:
-            break
+    try:
+        for entry in jsonn:
+            if entry["content"].startswith(tuple(links)):
+                artContent.append({"link" : re.split("\s+", entry["content"])[0],
+                                "sendGroup" : re.split("\s+", entry["content"])[1]})
+            else:
+                break
+    except Exception:
+        return
+    
+    artContent.reverse()
 
 def getSourceID():
     global sourceID
@@ -150,8 +167,8 @@ def addGroup(newGroup):
     with open(dataFile, 'r') as f:
         data = json.load(f)
     
-    data["groups"].append(newGroup)
-    groups.append(newGroup)
+    data["groups"][newGroup] = []
+    groups[newGroup] = []
 
     with open(dataFile, 'w') as f:
         json.dump(data, f)
@@ -162,23 +179,20 @@ def addGroupMember(group, newMember):
     with open(dataFile, 'r') as f:
         data = json.load(f)
     
-    for entry in data["groups"]:
-        if group in entry:
-            entry[group].append(newMember)
-            groups[group].append(newMember)
-            break
+    data["groups"][group].append(newMember)
+    groups[group].append(newMember)
 
     with open(dataFile, 'w') as f:
         json.dump(data, f)
 
-def removeGroup(remMember):
+def removeGroup(remGroup):
     global groups
 
     with open(dataFile, 'r') as f:
         data = json.load(f)
     
-    data["groups"].remove(remMember)
-    groups.remove(remMember)
+    data["groups"].pop(remGroup)
+    groups.pop(remGroup)
 
     with open(dataFile, 'w') as f:
         json.dump(data, f)
@@ -189,11 +203,8 @@ def removeGroupMember(group, remMember):
     with open(dataFile, 'r') as f:
         data = json.load(f)
     
-    for entry in data["groups"]:
-        if group in entry:
-            entry[group].remove(remMember)
-            groups[group].remove(remMember)
-            break
+    data["groups"][group].remove(remMember)
+    groups[group].remove(remMember)
 
     with open(dataFile, 'w') as f:
         json.dump(data, f)
