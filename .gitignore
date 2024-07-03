@@ -3,7 +3,7 @@ DiscordDM_DATA_test.json
 __pycache__/
 *.py[cod]
 *$py.class
-.7z
+*.7z
 # C extensions
 *.so
 
