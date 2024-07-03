@@ -1,7 +1,3 @@
-# Information Formatter and Accessor for DiscordDM
-# by David Zhou
-# version 1.0
-
 import json
 import requests
 import re

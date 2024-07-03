@@ -1,7 +1,6 @@
 # DiscordDMUI.py is the user interface for the DiscordDM module
-# by David Zhou
-# version 2.1
-
+# author: David Zhou
+# version: 2.0
 import os
 from tkinter import *
 import webbrowser
@@ -87,7 +86,7 @@ def MainPage(window:Frame):
     textNotice = "Any invalid data will be skipped when messages are sent"
     Label(window, text=textNotice,justify=LEFT).grid(sticky="w", column=0, row=rowpointer, columnspan=4)
     rowpointer += 1
-
+    
     def toGroupPage():
         for widget in window.winfo_children():
             widget.destroy()
@@ -228,7 +227,6 @@ def ManualSend(checkList:list[Checkbutton]):
     return -1
 
 def AutoSendPage(window:Frame):
-    DiscordDMDataAccess.initialize(path + "\\data\\DiscordDM_DATA.json")
     arts = DiscordDMDataAccess.getContent()
     groups = DiscordDMDataAccess.getGroups()
     header_params = DiscordDMDataAccess.getHeader()
@@ -236,85 +234,113 @@ def AutoSendPage(window:Frame):
 
     # cycle through symbols
     symbols = ["-", "\\", "|", "/"]
-    text = Text(window, wrap=WORD, height=6, width=40)
+
+    # setup for scroll bar
+    text = Text(window, wrap=WORD, height=12, width=80)
     logbar = Scrollbar(window, orient=VERTICAL, command=text.yview)
     text.configure(yscrollcommand=logbar.set)
     logbar.pack(side=RIGHT, fill=Y)
     text.pack(side=LEFT, fill=BOTH, expand=True)
-
-    cycle = (cycle + 1) % 5
     
+    # Configure the Text widget for hyperlinks
+
     queue = Queue()
-    p = threading.Thread(target=messenger_task, args=(header_params, groups, arts, queue))
+    sendqueue = Queue()
+
+    p = threading.Thread(target=messenger_task, args=(header_params, groups, arts, sendqueue, queue))
     p.start()
+    first = True
     while True:
         try:
             message = queue.get_nowait()
-            if message == "done":
-                cycle = (cycle + 1) % 5
+            first = True
+            if str(message) == "done":
                 break
-            text.insert(END, f" {symbols[cycle]} : {message}\n")
+            elif str(message).startswith("unknown:"):
+                if "Waiting" in text.get("end-2c linestart", END):
+                    text.delete("end-2c linestart", END)
+                    text.insert(END, "\n")
+                link = str(message).split(":")[1]
+                text.insert(END, " - : Unknown entry queued for manual send")
+                
+            else:
+                if "Waiting" in text.get("end-2c linestart", END):
+                    text.delete("end-2c linestart", END)
+                    text.insert(END, "\n")
+                text.insert(END, f" - : {message}\n")
+            
+            queue.task_done()
             text.see(END)
-            cycle = (cycle + 1) % 5
         except Exception as e:
+            if "Waiting" in text.get("end-2c linestart", END):
+                text.delete("end-2c linestart", END)
+                text.insert(END, "\n")
             text.insert(END, f" {symbols[cycle]} : Waiting... \n")
-            text.see(END)
-            cycle = (cycle + 1) % 5
+            if first:
+                text.see(END)
+            first = False
+
+        cycle = (cycle + 1) % 4
         window.update()
-        time.sleep(0.5)
-
-    text.insert(END, f" {symbols[cycle]} : Finishing up...\n")
+        #time.sleep(.25)
+    if "Waiting" in text.get("end-2c linestart", END):
+        text.delete("end-2c linestart", END)
+        text.insert(END, "\n")
+    text.insert(END, " - : Finishing up...\n")
+    queue.task_done()
     text.see(END)
-
     queue.join()
     p.join()
 
-    text.insert(END, f" {symbols[cycle]} : All process completed you may now close the window")
+    text.insert(END, f" - : All process completed you may now close the window")
     text.see(END)
 
 
-def messenger_task(header_params:dict, groups:dict, arts:list, queue:Queue):
+def messenger_task(header_params:dict, groups:dict, arts:list, sendqueue:Queue, queue:Queue):
     try:
-        for i, group in enumerate(groups):
-            mess = DiscordDM.Messenger(header_params)
-            # DiscordDM.BulkMsg(groups, arts) but with queue logs
-            for art in arts:
-                try:
-                    payload = {"content" : art["link"]}
+        mess = DiscordDM.Messenger(header_params)
+        # DiscordDM.BulkMsg(groups, arts) but with queue logs
+        for art in arts:
+            try:
+                payload = {"content" : art["link"]}
 
-                    for user in groups[art["sendGroup"].lower()]:
+                for user in groups[art["sendGroup"].lower()]:
+                    response = mess.sendMsg(user["id"], payload)
+
+                    while response == "<Response [429]>":
+                        queue.put("Rate limited, waiting 5 seconds...")
+                        time.sleep(5)
                         response = mess.sendMsg(user["id"], payload)
-                        time.sleep(.25)
-                        while response == "<Response [429]>":
-                            queue.put("Rate limited, waiting 5 seconds...")
-                            time.sleep(5)
-                            response = mess.sendMsg(user["id"], payload)
-                        
-                        if response != "<Response [200]>":
-                            queue.put(f"An unknown response was received: {response}")
-                            return
-                        
-                        queue.put(f"sent {art['link']} to {user['name']} in group {group}")
+                    
+                    if response != "<Response [200]>":
+                        queue.put(f"An unknown response was received: {response}")
+                        return
+                    
+                    queue.put(f"sent {art['link']} to {user['name']}")
 
-                except Exception:
-                    queue.put(f"skipped {art['link']} : unrecognized input")
-                    continue
+            except Exception:
+                queue.put(f"unknown:{art['link']}")
+                continue
             time.sleep(3)
-        return -1
+        while sendqueue.empty() == False:
+            entry = sendqueue.get_nowait()
+            queue.put(f"unknown:{entry}")
     except Exception as e:
         queue.put(str(e))
     queue.put("done")
+    return 1
 
 
 
 if __name__ == "__main__":
     path = os.path.dirname(os.path.realpath(__file__))
-    DiscordDMDataAccess.initialize(path + "\\data\\DiscordDM_DATA.json")
+    DiscordDMDataAccess.initialize(path + "/data/DiscordDM_DATA.json")
     win = Tk()
     win.title("Discord Art Sender")
-    win.geometry('550x600')
+    #win.geometry('550x600')
     window = Frame(win)
-    window.pack(side="top", expand=True, fill="both")
+    window.pack(side="top", expand=True, fill="both", padx=10, pady=10)
+    window.pack_propagate(True) 
     MainPage(window)
 
     win.mainloop()

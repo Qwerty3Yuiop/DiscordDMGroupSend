@@ -5,8 +5,6 @@
 import requests
 from time import sleep
 
-
-
 class Messenger:
     headers = {"Authorization" : ""}
     def __init__(self, auth):
