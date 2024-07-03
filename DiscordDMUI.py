@@ -9,6 +9,7 @@ from queue import Queue
 import time
 import DiscordDMDataAccess
 import DiscordDM
+from pathlib import Path
 
 
 targets = []
@@ -333,8 +334,11 @@ def messenger_task(header_params:dict, groups:dict, arts:list, sendqueue:Queue, 
 
 
 if __name__ == "__main__":
-    path = os.path.dirname(os.path.realpath(__file__))
-    DiscordDMDataAccess.initialize(path + "/data/DiscordDM_DATA.json")
+    path = Path(os.getcwd() + "/data")
+    if not os.path.exists(path):
+        os.mkdir(path)
+    path = Path(os.getcwd() + "/data/DiscordDM_DATA.json")
+    DiscordDMDataAccess.initialize(path)
     win = Tk()
     win.title("Discord Art Sender")
     #win.geometry('550x600')

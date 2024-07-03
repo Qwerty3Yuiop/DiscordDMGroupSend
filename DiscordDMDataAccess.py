@@ -1,6 +1,10 @@
+# Json Accessor for Discord DM
+# by David Zhou
+# version 1.5
 import json
 import requests
-import re
+from re import split
+from sys import exit
 
 dataFile = ""
 sourceID = ""
@@ -29,9 +33,22 @@ def initialize(file):
     targets = []
     groups = {}
     artContent = []
-
-    with open(file, 'r') as f:
-        data = json.load(f)
+    try:
+        with open(file, 'r') as f:
+            data = json.load(f)
+    except Exception:
+        data = open(file, 'w')
+        jsonn = {
+            "source": "1218699021363970090",
+            "Authorization": "",
+            "linkTypes": [],
+            "targets": [],
+            "groups": []
+        }
+        data.write(json.dumps(jsonn))
+        data.close()
+        exit(0)
+        
 
     dataFile = file
     sourceID = data["source"]
@@ -53,8 +70,8 @@ def searchHistory(channelurl):
     try:
         for entry in jsonn:
             if entry["content"].startswith(tuple(links)):
-                artContent.append({"link" : re.split("\s+", entry["content"])[0],
-                                "sendGroup" : re.split("\s+", entry["content"])[1]})
+                artContent.append({"link" : split("\s+", entry["content"])[0],
+                                "sendGroup" : split("\s+", entry["content"])[1]})
             else:
                 break
     except Exception:
