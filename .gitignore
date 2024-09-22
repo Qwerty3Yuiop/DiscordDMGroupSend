@@ -4,6 +4,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.7z
+test.py
+*.json
 # C extensions
 *.so
 

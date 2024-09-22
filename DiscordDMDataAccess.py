@@ -3,28 +3,10 @@
 # version 1.5
 import json
 import requests
+from random import randint
 from re import split
-from sys import exit
 
-dataFile = ""
-sourceID = ""
-sourceurl = ""
-headers = {"Authorization" : ""}
-links = []
-targets = []
-groups = {}
-artContent = []
-
-def initialize(file):
-    global dataFile
-    global sourceID
-    global sourceurl
-    global headers
-    global links
-    global targets
-    global groups
-    global artContent
-
+class DiscordDMAccessor:
     dataFile = ""
     sourceID = ""
     sourceurl = ""
@@ -32,208 +14,278 @@ def initialize(file):
     links = []
     targets = []
     groups = {}
-    artContent = []
-    try:
-        with open(file, 'r') as f:
-            data = json.load(f)
-    except Exception:
-        data = open(file, 'w')
-        jsonn = {
-            "source": "1218699021363970090",
-            "Authorization": "",
-            "linkTypes": [],
-            "targets": [],
-            "groups": []
-        }
-        data.write(json.dumps(jsonn))
-        data.close()
-        exit(0)
+    messages = []
+
+    def __init__(self, file):
+        self.dataFile = ""
+        self.sourceID = ""
+        self.sourceurl = ""
+        self.headers = {"Authorization" : ""}
+        self.links = []
+        self.targets = []
+        self.groups = {}
+        self.messages = []
+        try:
+            with open(file, 'r') as f:
+                data = json.load(f)
+        except Exception:
+            data = open(file, 'w')
+            jsonn = {
+                "source": "",
+                "Authorization": "",
+                "linkTypes": [],
+                "targets": [],
+                "groups": []
+            }
+            data.write(json.dumps(jsonn))
+            data.close()
+
+        self.dataFile = file
+        self.sourceID = data["source"]
+        self.auth = data["Authorization"]
+        self.sourceurl = f"https://discord.com/api/v9/channels/{self.sourceID}"
+        self.headers = {"Authorization" : self.auth}
+        for link in data["linkTypes"]:
+            self.links.append(link)
+        for target in data["targets"]:
+            self.targets.append(target)
+        self.groups = data["groups"]
+        self.searchHistory(self.sourceurl)
+
+    def searchHistory(self, channelurl):
+        r = requests.get(channelurl, headers=self.headers)
+        jsonn = json.loads(r.text)
+        try:
+            for entry in jsonn:
+                if entry["content"].startswith(tuple(self.links)):
+                    self.messages.append({"link" : split("\s+", entry["content"])[0],
+                                    "sendGroup" : split("\s+", entry["content"])[1],
+                                    "other" : entry})
+                else:
+                    break
+        except Exception:
+            return
         
+        self.messages.reverse()
 
-    dataFile = file
-    sourceID = data["source"]
-    auth = data["Authorization"]
-    sourceurl = f"https://discord.com/api/v9/channels/{sourceID}/messages"
-    headers = {"Authorization" : auth}
-    for link in data["linkTypes"]:
-        links.append(link)
-    for target in data["targets"]:
-        targets.append(target)
-    groups = data["groups"]
-    searchHistory(sourceurl)
+    def getSourceID(self):
+        return self.sourceID
 
-def searchHistory(channelurl):
-    global artContent
+    def getSourceUrl(self):
+        return self.sourceurl
 
-    r = requests.get(channelurl, headers=headers)
-    jsonn = json.loads(r.text)
-    try:
-        for entry in jsonn:
-            if entry["content"].startswith(tuple(links)):
-                artContent.append({"link" : split("\s+", entry["content"])[0],
-                                "sendGroup" : split("\s+", entry["content"])[1]})
-            else:
-                break
-    except Exception:
-        return
-    
-    artContent.reverse()
+    def setSource(self, newID):
+        with open(self.dataFile, 'r') as f:
+            data = json.load(f)
+        
+        data["source"] = newID
+        self.sourceID = newID
+        self.sourceurl = f"https://discord.com/api/v9/channels/{self.sourceID}/messages"
 
-def getSourceID():
-    global sourceID
-    return sourceID
+        with open(self.dataFile, 'w') as f:
+            json.dump(data, f)
 
-def getSourceUrl():
-    global sourceurl
-    return sourceurl
+    def getHeader(self):
+        seed = ""
+        offset = 0
+        encoded = self.headers["Authorization"]
+        for i in range(11):
+            seed += encoded[offset]
+            encoded = encoded[:offset] + encoded[offset+1:]
+            offset += int(seed[i])
+        string = ""
+        for char in str(seed):
+            match char:
+                case "0":
+                    string += "P"
+                case "1":
+                    string += "K"
+                case "2":
+                    string += "G"
+                case "3":
+                    string += "X"
+                case "4":
+                    string += "U"
+                case "5":
+                    string += "C"
+                case "6":
+                    string += "L"
+                case "7":
+                    string += "W"
+                case "8":
+                    string += "Z"
+                case "9":
+                    string += "M"
+        seed = str(seed)
+        cur = 0
+        dejunked = ""
+        for char in encoded:
+            if char == string[cur]:
+                cur = (cur + 1) % 10
+                dejunked += "|"
+                continue
+            dejunked += char if char.isnumeric() else ""
+        letters = dejunked.split("|")
+        auth = ""
+        for letter in letters:
+            if letter != "":
+                auth += chr(int(int(letter) / int(seed) + .5))
+        return auth
 
-def setSource(newID):
-    global dataFile
-    global sourceID
-    global sourceurl
+    def setHeaders(self, auth):
+        encoded = ""
+        seed = randint(10000000000, 99999999999)
+        string = ""
+        for char in str(seed):
+            match char:
+                case "0":
+                    string += "P"
+                case "1":
+                    string += "K"
+                case "2":
+                    string += "G"
+                case "3":
+                    string += "X"
+                case "4":
+                    string += "U"
+                case "5":
+                    string += "C"
+                case "6":
+                    string += "L"
+                case "7":
+                    string += "W"
+                case "8":
+                    string += "Z"
+                case "9":
+                    string += "M"
+        for i, char in enumerate(auth):
+            encoded += str(ord(char) * seed)
+            encoded += string[i % 10]
+        offset = 0
+        cur = 0
+        junkEncode = ""
+        for char in encoded:
+            if not char.isnumeric():
+                cur = (cur + 1) % 10
+            if randint(0,1):
+                val = randint(33, 116)
+                if val > 47:
+                    val += 10
+                junkEncode += chr(val) if chr(val) != string[cur] else ""
+            junkEncode += char
+        seed = str(seed)
+        encoded = junkEncode
+        for char in seed:
+            encoded  = encoded[:offset] + char + encoded[offset:]
+            offset += int(char) + 1
 
-    with open(dataFile, 'r') as f:
-        data = json.load(f)
-    
-    data["source"] = newID
-    sourceID = newID
-    sourceurl = f"https://discord.com/api/v9/channels/{sourceID}/messages"
+        with open(self.dataFile, 'r') as f:
+            data = json.load(f)
+        
+        data["Authorization"] = encoded
+        self.headers = {"Authorization" : encoded}
 
-    with open(dataFile, 'w') as f:
-        json.dump(data, f)
+        with open(self.dataFile, 'w') as f:
+            json.dump(data, f)
 
-def getHeader():
-    global headers
-    return headers
+    def getLinks(self):
+        return self.links
 
-def setHeaders(auth):
-    global headers
+    def addLink(self, newLink):
+        with open(self.dataFile, 'r') as f:
+            data = json.load(f)
+        
+        data["linkTypes"].append(newLink)
+        self.links.append(newLink)
 
-    with open(dataFile, 'r') as f:
-        data = json.load(f)
-    
-    data["Authorization"] = auth
-    headers = {"Authorization" : auth}
+        with open(self.dataFile, 'w') as f:
+            json.dump(data, f)
 
-    with open(dataFile, 'w') as f:
-        json.dump(data, f)
+    def removeLink(self, remLink):
+        with open(self.dataFile, 'r') as f:
+            data = json.load(f)
+        
+        data["linkTypes"].remove(remLink)
+        self.links.remove(remLink)
 
-def getLinks():
-    global links
-    return links
+        with open(self.dataFile, 'w') as f:
+            json.dump(data, f) 
 
-def addLink(newLink):
-    global links
+    def getTargets(self):
+        return self.targets
 
-    with open(dataFile, 'r') as f:
-        data = json.load(f)
-    
-    data["linkTypes"].append(newLink)
-    links.append(newLink)
+    def addTarget(self, newTarget):
+        with open(self.dataFile, 'r') as f:
+            data = json.load(f)
+        
+        data["targets"].append(newTarget)
+        self.targets.append(newTarget)
 
-    with open(dataFile, 'w') as f:
-        json.dump(data, f)
+        with open(self.dataFile, 'w') as f:
+            json.dump(data, f)
 
-def removeLink(remLink):
-    global links
+    def removeTarget(self, remTarget):
+        with open(self.dataFile, 'r') as f:
+            data = json.load(f)
+        
+        data["targets"].remove(remTarget)
+        self.targets.remove(remTarget)
 
-    with open(dataFile, 'r') as f:
-        data = json.load(f)
-    
-    data["linkTypes"].remove(remLink)
-    links.remove(remLink)
+        with open(self.dataFile, 'w') as f:
+            json.dump(data, f)
 
-    with open(dataFile, 'w') as f:
-        json.dump(data, f) 
+    def getGroups(self):
+        return self.groups
 
-def getTargets():
-    global targets
-    return targets
+    def addGroup(self, newGroup):
+        with open(self.dataFile, 'r') as f:
+            data = json.load(f)
+        
+        data["groups"][newGroup] = []
+        self.groups[newGroup] = []
 
-def addTarget(newTarget):
-    global targets
+        with open(self.dataFile, 'w') as f:
+            json.dump(data, f)
 
-    with open(dataFile, 'r') as f:
-        data = json.load(f)
-    
-    data["targets"].append(newTarget)
-    targets.append(newTarget)
+    def addGroupMember(self, group, newMember):
+        with open(self.dataFile, 'r') as f:
+            data = json.load(f)
+        
+        data["groups"][group].append(newMember)
+        self.groups[group].append(newMember)
 
-    with open(dataFile, 'w') as f:
-        json.dump(data, f)
+        with open(self.dataFile, 'w') as f:
+            json.dump(data, f)
 
-def removeTarget(remTarget):
-    global targets
+    def removeGroup(self, remGroup):
+        global groups
 
-    with open(dataFile, 'r') as f:
-        data = json.load(f)
-    
-    data["targets"].remove(remTarget)
-    targets.remove(remTarget)
+        with open(self.dataFile, 'r') as f:
+            data = json.load(f)
+        
+        data["groups"].pop(remGroup)
+        self.groups.pop(remGroup)
 
-    with open(dataFile, 'w') as f:
-        json.dump(data, f)
+        with open(self.dataFile, 'w') as f:
+            json.dump(data, f)
 
-def getGroups():
-    global groups
-    return groups
+    def removeGroupMember(self, group, remMember):
+        global groups
 
-def addGroup(newGroup):
-    global groups
+        with open(self.dataFile, 'r') as f:
+            data = json.load(f)
+        
+        data["groups"][group].remove(remMember)
+        self.groups[group].remove(remMember)
 
-    with open(dataFile, 'r') as f:
-        data = json.load(f)
-    
-    data["groups"][newGroup] = []
-    groups[newGroup] = []
+        with open(self.dataFile, 'w') as f:
+            json.dump(data, f)
 
-    with open(dataFile, 'w') as f:
-        json.dump(data, f)
+    def getContent(self):
+        return self.messages
 
-def addGroupMember(group, newMember):
-    global groups
+    def addContent(self, newContent):
+        self.messages.append(newContent)
 
-    with open(dataFile, 'r') as f:
-        data = json.load(f)
-    
-    data["groups"][group].append(newMember)
-    groups[group].append(newMember)
-
-    with open(dataFile, 'w') as f:
-        json.dump(data, f)
-
-def removeGroup(remGroup):
-    global groups
-
-    with open(dataFile, 'r') as f:
-        data = json.load(f)
-    
-    data["groups"].pop(remGroup)
-    groups.pop(remGroup)
-
-    with open(dataFile, 'w') as f:
-        json.dump(data, f)
-
-def removeGroupMember(group, remMember):
-    global groups
-
-    with open(dataFile, 'r') as f:
-        data = json.load(f)
-    
-    data["groups"][group].remove(remMember)
-    groups[group].remove(remMember)
-
-    with open(dataFile, 'w') as f:
-        json.dump(data, f)
-
-def getContent():
-    global artContent
-    return artContent
-
-def addContent(newContent):
-    global artContent
-    artContent.append(newContent)
-
-def removeContent(remContent):
-    global artContent
-    artContent.remove(remContent)
+    def removeContent(self, remContent):
+        self.messages.remove(remContent)
