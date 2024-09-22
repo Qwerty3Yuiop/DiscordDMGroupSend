@@ -47,6 +47,7 @@ class DiscordDMUI:
         editAuth.grid(column=1, row=rowpointer, columnspan=2)
         def changeAuth():
             self.accessor.setHeaders(editAuth.get())
+            editAuth.delete(0, END)
 
         Button(window, text="Update", command=changeAuth).grid(column=3, row=rowpointer)
         rowpointer += 1
@@ -271,6 +272,7 @@ class DiscordDMUI:
 
         p = threading.Thread(target=self.messenger_task, args=(header_params, groups, arts, queue))
         p.start()
+
         first = True
         while True:
             try:
@@ -320,7 +322,7 @@ class DiscordDMUI:
         text.see(END)
 
 
-    def messenger_task(header_params:dict, groups:dict, arts:list, queue:Queue):
+    def messenger_task(self, header_params:dict, groups:dict, arts:list, queue:Queue):
         try:
             mess = DiscordDM.Messenger(header_params)
             # DiscordDM.BulkMsg(groups, arts) but with queue logs
@@ -356,7 +358,7 @@ class DiscordDMUI:
         queue.put("done")
         return 1
 
-    def sendTask(queue:Queue):
+    def sendTask(self, queue:Queue):
         order = queue.get()
 
     

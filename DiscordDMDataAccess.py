@@ -31,7 +31,7 @@ class DiscordDMAccessor:
         except Exception:
             data = open(file, 'w')
             jsonn = {
-                "source": "1218699021363970090",
+                "source": "",
                 "Authorization": "",
                 "linkTypes": [],
                 "targets": [],
@@ -43,7 +43,7 @@ class DiscordDMAccessor:
         self.dataFile = file
         self.sourceID = data["source"]
         self.auth = data["Authorization"]
-        self.sourceurl = f"https://discord.com/api/v9/channels/{self.sourceID}/messages"
+        self.sourceurl = f"https://discord.com/api/v9/channels/{self.sourceID}"
         self.headers = {"Authorization" : self.auth}
         for link in data["linkTypes"]:
             self.links.append(link)
@@ -128,7 +128,8 @@ class DiscordDMAccessor:
         letters = dejunked.split("|")
         auth = ""
         for letter in letters:
-            auth += chr(int(int(letter) / int(seed) + .5))
+            if letter != "":
+                auth += chr(int(int(letter) / int(seed) + .5))
         return auth
 
     def setHeaders(self, auth):
@@ -171,7 +172,7 @@ class DiscordDMAccessor:
                 if val > 47:
                     val += 10
                 junkEncode += chr(val) if chr(val) != string[cur] else ""
-            junkEncode = char
+            junkEncode += char
         seed = str(seed)
         encoded = junkEncode
         for char in seed:
