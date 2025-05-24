@@ -1,8 +1,10 @@
 from db import MySqlDb
+import dotenv
+dotenv.load_dotenv("server/.env")
 
 def user_table(db:MySqlDb):
     query = """
-        CREATE TABLE users (
+        CREATE TABLE IF NOT EXISTS users (
             id VARCHAR(36) PRIMARY KEY,
             username VARCHAR(30) NOT NULL,
             private_key BLOB NOT NULL,
@@ -13,12 +15,12 @@ def user_table(db:MySqlDb):
 
 def messages_table(db:MySqlDb):
     query = """
-        CREATE TABLE messages (
+        CREATE TABLE IF NOT EXISTS messages (
             id VARCHAR(36) PRIMARY KEY,
             time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            message BLOB NOT NULL,
-            embedding BLOB,
-            metadata BLOB NOT NULL,
+            message TEXT NOT NULL,
+            embeddings JSON NOT NULL,
+            tags JSON NOT NULL,
             user_id VARCHAR(36) NOT NULL,
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
@@ -35,3 +37,8 @@ def state_table(db:MySqlDb):
             FOREIGN KEY (message_id) REFERENCES messages(id)
         );
     """
+
+if __name__ == "__main__":
+    db = MySqlDb()
+    user_table(db)
+    messages_table(db)

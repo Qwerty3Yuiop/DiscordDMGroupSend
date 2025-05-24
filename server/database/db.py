@@ -16,8 +16,6 @@ class MySqlDb:
         else:
             raise ConnectionRefusedError("Not connected to db")
 
-        return self.connection
-
     def query(self, query:str, params: tuple = None):
         """
         Executes any SQL query
