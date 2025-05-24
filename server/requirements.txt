@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+rsa
+crytography
+mysql-connector-python
