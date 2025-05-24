@@ -1,4 +1,4 @@
-from db import MySqlDb
+from database.db import MySqlDb
 import auth.encrypt as crypt
 from datetime import datetime
 import uuid
@@ -41,17 +41,38 @@ def save_message(db:MySqlDb, user_id:str, time:str, message:str, embeddings:list
     db.commit()
 
 def get_messages_by_time(db:MySqlDb, user_id:str, start:str, end:str):
-    t_start = datetime.strptime(start, TIMEFORMAT)
-    t_end = datetime.strptime(end, TIMEFORMAT)
+    if start and end:
+        t_start = datetime.strptime(start, TIMEFORMAT)
+        t_end = datetime.strptime(end, TIMEFORMAT)
+        query = 'SELECT * FROM messages WHERE user_id = %s AND time >= %s AND time <= %s ORDER BY time DESC'
+        params = (user_id, t_start, t_end)
+        data = db.query(query, params)
+    elif start:
+        t_start = datetime.strptime(start, TIMEFORMAT)
+        query = 'SELECT * FROM messages WHERE user_id = %s AND time >= %s ORDER BY time DESC'
+        params = (user_id, t_start)
+        data = db.query(query, params)
+    elif end:
+        t_end = datetime.strptime(end, TIMEFORMAT)
+        query = 'SELECT * FROM messages WHERE user_id = %s AND time <= %s ORDER BY time DESC'
+        params = (user_id, t_end)
+        data = db.query(query, params)
+    else:
+        query = 'SELECT * FROM messages WHERE user_id = %s ORDER BY time DESC'
+        params = (user_id)
+        data = db.query(query, params)
 
-    query = 'SELECT * FROM messages WHERE user_id = %s AND time >= %s AND time <= %s'
-    params = (user_id, t_start, t_end)
-
-    data = db.query(query, params)
     
     return data
 
-def get_messages_recent(db: MySqlDb, user_id:str):
-    query = 'SELECT * FROM messages WHERE user_id = %s ORDER BY time DESC LIMIT 1'
-    data = db.query(query)
+def get_messages_recent(db: MySqlDb, user_id:str, count:int=1):
+    query = 'SELECT * FROM messages WHERE user_id = %s ORDER BY time DESC LIMIT %s'
+    params = (user_id, count)
+    data = db.query(query, params)
+    return data
+
+def get_messages_unsent(db: MySqlDb, user_id:str, sent:bool):
+    query = 'SELECT * FROM messages WHERE user_id = %s AND sent = %s ORDER BY time DESC'
+    params = (user_id, sent)
+    data = db.query(query, params)
     return data

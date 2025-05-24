@@ -21,6 +21,7 @@ def messages_table(db:MySqlDb):
             message TEXT NOT NULL,
             embeddings JSON NOT NULL,
             tags JSON NOT NULL,
+            sent BOOLEAN DEFAULT FALSE,
             user_id VARCHAR(36) NOT NULL,
             FOREIGN KEY (user_id) REFERENCES users(id)
         );

@@ -13,7 +13,7 @@ SCRIPT_PATH="$(readlink -f "$SCRIPT_PATH_RAW")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
 SERVER_DIR="$(dirname "$SCRIPT_DIR")/server"
-PYTHON_SCRIPT="main.py"
+PYTHON_SCRIPT="database/setup_db.py"
 FULL_PYTHON_SCRIPT_PATH="$SERVER_DIR/$PYTHON_SCRIPT"
 
 if [ ! -d "$SERVER_DIR" ]; then
