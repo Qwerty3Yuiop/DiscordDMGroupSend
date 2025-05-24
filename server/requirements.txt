@@ -3,3 +3,7 @@ uvicorn
 rsa
 crytography
 mysql-connector-python
+dotenv
+pydantic
+requests
+beautifulsoup4
