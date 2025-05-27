@@ -13,7 +13,7 @@ const Navbar: React.FC = () => {
     <nav className="navbar">
       <div className="navbar-logo">
         <a href="#" className="navbar-logo-link">
-          <a className="navbar-logo-icon"><img src={DiscordIcon} className="discord-logo"/> Discord Sender</a>
+          <a className="navbar-logo-icon"><img src={DiscordIcon} className="discord-logo"/>Discord Sender</a>
         </a>
       </div>
       <div className="gap"></div>
@@ -25,11 +25,11 @@ const Navbar: React.FC = () => {
           </a>
           <a href="#" className="navbar-link">
             <Info size={20} />
-            <span>About</span>
+            <span>Automatic Send</span>
           </a>
           <a href="#" className="navbar-link">
             <Mail size={20} />
-            <span>Contact</span>
+            <span>Manual Send</span>
           </a>
           <a href="#" className="navbar-link">
             <Settings size={20} />
