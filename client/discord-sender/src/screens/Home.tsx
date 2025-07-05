@@ -48,7 +48,7 @@ function Homepage() {
         value={channelId}
         onChange={(e) => setChannelId(e.target.value)}
       />
-      <button
+      <button className='setting-button'
         onClick={searchChannelId}>Search Channel
       </button>
       

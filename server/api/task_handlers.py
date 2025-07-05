@@ -1,14 +1,14 @@
 import auth.encrypt as crypt
 import database.db_utils as db
 
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 
 import json
 import api.utils as utils
 
-router = FastAPI()
+router = APIRouter(prefix="/api", tags=["task_handlers"])
 
 class EncryptedRequest(BaseModel):
     user_id: str
@@ -40,6 +40,7 @@ async def check_messages(msg: EncryptedRequest):
     
     encrypted_data = crypt.rsa_encrypt(json.dumps(data), public_key)
     return encrypted_data
+
 
         
 

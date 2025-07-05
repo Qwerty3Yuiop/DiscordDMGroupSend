@@ -3,8 +3,7 @@ import './Settings.css'
 
 function Settingspage() {
   // Token params
-  const [encryptedDiscordToken, setEncryptedDiscordToken] = useState('');
-  const [rawDiscordToken, setRawDiscordToken] = useState<string | null>(null);
+  const [displayDiscordToken, setDisplayDiscordToken] = useState('');
 
   // Channel ID
   const [channelId, setChannelId] = useState('');
@@ -17,28 +16,77 @@ function Settingspage() {
   useEffect(() => {
     const storedToken = localStorage.getItem('DiscordSenderEncryptedToken');
     if (storedToken) {
-      setEncryptedDiscordToken(storedToken);
+      setDisplayDiscordToken(storedToken);
     }
   }, []);
   
   
 
   const handleTokenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRawDiscordToken(e.target.value);
+    setDisplayDiscordToken(e.target.value);
   };
 
   const handlePasswordSubmit = () => {
-    // Here you would encrypt pendingToken with password and store it
-    setEncryptedDiscordToken(rawDiscordToken || '');
+    if (password === '') {
+      localStorage.setItem('DiscordSenderEncryptedToken', displayDiscordToken);
+      setShowPasswordPrompt(false);
+      setPassword('');
+      return;
+    }
+    try {
+      const encryptToken = async () => {
+        const enc = new TextEncoder();
+        const keyMaterial = await window.crypto.subtle.importKey(
+          'raw',
+          enc.encode(password),
+          { name: 'PBKDF2' },
+          false,
+          ['deriveKey']
+        );
+        const salt = window.crypto.getRandomValues(new Uint8Array(16));
+        const key = await window.crypto.subtle.deriveKey(
+          {
+            name: 'PBKDF2',
+            salt,
+            iterations: 100000,
+            hash: 'SHA-256',
+          },
+          keyMaterial,
+          { name: 'AES-GCM', length: 256 },
+          true,
+          ['encrypt']
+        );
+        const iv = window.crypto.getRandomValues(new Uint8Array(12));
+        const ciphertext = await window.crypto.subtle.encrypt(
+          {
+            name: 'AES-GCM',
+            iv,
+          },
+          key,
+          enc.encode(displayDiscordToken)
+        );
+        // Store salt, iv, and ciphertext as base64
+        const b64 = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf)));
+        const encryptedData = JSON.stringify({
+          salt: b64(salt),
+          iv: b64(iv),
+          ciphertext: b64(ciphertext),
+        });
+        localStorage.setItem('DiscordSenderEncryptedToken', encryptedData);
+        setDisplayDiscordToken(encryptedData);
+      };
+      encryptToken();
+    } catch (e) {
+      alert('Encryption failed.');
+    }
     setShowPasswordPrompt(false);
     setPassword('');
-    setRawDiscordToken(null);
   };
 
   const handlePasswordCancel = () => {
     setShowPasswordPrompt(false);
     setPassword('');
-    setRawDiscordToken(null);
+    setDisplayDiscordToken('');
   };
 
   const tokenSubmit = () => {
@@ -58,7 +106,7 @@ function Settingspage() {
                   className = "setting-input"
                   type="password"
                   placeholder="Discord Token"
-                  value={encryptedDiscordToken}
+                  value={displayDiscordToken}
                   onChange={handleTokenChange}
                 />
                 <button className="setting-button" onClick={tokenSubmit}>Submit</button>

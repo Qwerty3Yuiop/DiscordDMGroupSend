@@ -12,10 +12,9 @@ const Navbar: React.FC = () => {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
+        <img src={DiscordIcon} className="discord-logo"/>
         <a href="#" className="navbar-logo-link">
-          <a className="navbar-logo-icon">
-            <img src={DiscordIcon} className="discord-logo"/>
-            Discord Sender</a>
+          Discord Sender
         </a>
       </div>
       <div className="gap"></div>

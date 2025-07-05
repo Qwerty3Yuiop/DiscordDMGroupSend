@@ -5,6 +5,12 @@
   min-width: 300px;
 }
 
+.setting-button {
+  font-size: 14px;
+  padding: 3px;
+  margin: 10px;
+}
+
 .fixed-div {
   position: fixed;
   top: 0;

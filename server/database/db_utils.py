@@ -26,6 +26,18 @@ def get_keys(db:MySqlDb, user_id:str):
     else:
         raise LookupError("user not in table")
 
+def get_user_data(db:MySqlDb, user_id:str):
+    """
+    Gets user data from database.
+    Returns a dictionary with user data.
+    """
+    query = f'SELECT data FROM users WHERE id="{user_id}"'
+    data = db.query(query)
+    if len(data):
+        return data[0]['data']
+    else:
+        raise LookupError("user not in table")
+
 def save_message(db:MySqlDb, user_id:str, time:str, message:str, embeddings:list, tags:list):
     """
     Saves a new message to the database
