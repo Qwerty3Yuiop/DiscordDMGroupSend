@@ -52,7 +52,3 @@ def query_discord(channel_id:str, last_message:str):
         data.append(post)
 
     return data
-
-    
-
-
